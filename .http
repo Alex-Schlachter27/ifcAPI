@@ -1,0 +1,171 @@
+@host=http://127.0.0.1:8000
+
+# @icddName=donut
+
+
+### PING
+GET {{host}}
+
+### GET IFC Products
+POST {{host}}/get-ifc-products
+Content-Type: application/json
+
+{
+    "file": "C:/Users/asch/Desktop/Jupyter-projects/test_files/Duplex_A.ifc",
+}
+
+#Works
+# curl -X 'POST' \
+#   'http://127.0.0.1:8000/get-ifc-products/' \
+#   -H 'accept: application/json' \
+#   -H 'Content-Type: multipart/form-data' \
+#   -F 'file=@CR-AAR-GEN=NEL6-CM=GEN-CST-MEX-0001-^-^.ifc'
+
+###
+POST {{host}}/get-ifc-products
+Content-Type: multipart/form-data; boundary=--------------------------150071058684907507619476
+# Accept: application/json
+
+----------------------------150071058684907507619476
+Content-Disposition: form-data; name="file"; filename="Duplex_A.ifc"
+# Content-Type: application/octet-stream
+
+C:/Users/asch/Desktop/Jupyter-projects/test_files/Duplex_A.ifc
+----------------------------150071058684907507619476--
+
+###
+POST {{host}}/get-ifc-products
+Content-Type: multipart/form-data; boundary=----WebKitFormBoundary7MA4YWxkTrZu0gW
+
+------WebKitFormBoundary7MA4YWxkTrZu0gW
+Content-Disposition: form-data; name="file"; filename="/C:/Development/PAA/IDS/ifcAPI/Duplex_A.ifc"
+Content-Type: <Content-Type header here>
+
+(data)
+------WebKitFormBoundary7MA4YWxkTrZu0gW--
+
+#./Duplex_A.ifc
+# C:/Users/asch/Desktop/Jupyter-projects/test_files/Duplex_A.ifc
+
+# ### GET NEAREST
+# POST {{host}}/methods/getNearest
+# Content-Type: application/json
+
+# {
+#     "sasUrl": "https://webbimstorage.blob.core.windows.net/results/{{icddName}}/payload_documents/.ifc?sv=2020-08-04&ss=b&srt=sco&sp=rwdlacx&se=2022-08-05T04:35:13Z&st=2021-08-04T20:35:13Z&spr=https&sig=o8AaL6gHGkuEOiNp7pv8t0yL7V%2F5rQWRYpdtx9jb39w%3D",
+#     "sourceURI": "https://web-bim/resources/1111/1hOSvn6df7F8_7GcBWlRGQ",
+#     "targetURIs": ["https://web-bim/resources/1111/1hOSvn6df7F8_7GcBWlRH8", "https://web-bim/resources/1111/1hOSvn6df7F8_7GcBWlS8Z", "https://web-bim/resources/1111/1hOSvn6df7F8_7GcBWlS9F", "https://web-bim/resources/1111/1hOSvn6df7F8_7GcBWlSFK", "https://web-bim/resources/1111/1hOSvn6df7F8_7GcBWlSDm", "https://web-bim/resources/1111/2OBrcmyk58NupXoVOHUuXp", "https://web-bim/resources/1111/2OBrcmyk58NupXoVOHUvVV", "https://web-bim/resources/1111/2OBrcmyk58NupXoVOHUvR4", "https://web-bim/resources/1111/2OBrcmyk58NupXoVOHUvPL", "https://web-bim/resources/1111/1s1jVhK8z0pgKYcr9jt781", "https://web-bim/resources/1111/1s1jVhK8z0pgKYcr9jt7AB", "https://web-bim/resources/1111/1aj%24VJZFn2TxepZUBcKp%24i", "https://web-bim/resources/1111/2ViC9EPfn9ReiYXGj5lHUo"]
+# }
+
+# ### BBOX
+# POST {{host}}/transform/bbox
+# Content-Type: application/json
+
+# {
+#     "icdd_name": "6f6873d3885fd0bd11bee86ebce0eb71",
+#     "sas_url": "https://webbimstorage.blob.core.windows.net/results?sv=2020-08-04&ss=b&srt=sco&sp=rwdlacx&se=2022-08-05T04:35:13Z&st=2021-08-04T20:35:13Z&spr=https&sig=o8AaL6gHGkuEOiNp7pv8t0yL7V%2F5rQWRYpdtx9jb39w%3D",
+#     "namespace": "https://web-bim/resources/1234/"
+# }
+
+# ### Mass top polygons
+# POST {{host}}/transform/massTopPolygons
+# Content-Type: application/json
+
+# {
+#     "icdd_name": "6f6873d3885fd0bd11bee86ebce0eb71",
+#     "sas_url": "https://webbimstorage.blob.core.windows.net/results?sv=2020-08-04&ss=b&srt=sco&sp=rwdlacx&se=2022-08-05T04:35:13Z&st=2021-08-04T20:35:13Z&spr=https&sig=o8AaL6gHGkuEOiNp7pv8t0yL7V%2F5rQWRYpdtx9jb39w%3D",
+#     "namespace": "https://web-bim/resources/1234/"
+# }
+
+# ### Space boundaries
+# # NB! icdd_path must have a SAS-token appended to it (by the orchestrator)
+# POST {{host}}/transform/spaceBoundaries
+# Content-Type: application/json
+
+# {
+#     "sasUrl": "https://webbimstorage.blob.core.windows.net/results/test-model-wall-surface/payload_documents/10c512b3ca335fea54832a4407d06a01.ifc?sv=2020-08-04&ss=b&srt=sco&sp=rwdlacx&se=2022-08-05T04:35:13Z&st=2021-08-04T20:35:13Z&spr=https&sig=o8AaL6gHGkuEOiNp7pv8t0yL7V%2F5rQWRYpdtx9jb39w%3D"
+# }
+
+# # "sasUrl": "https://webbimstorage.blob.core.windows.net/results/6f6873d3885fd0bd11bee86ebce0eb71/payload_documents/.ifc?sv=2020-08-04&ss=b&srt=sco&sp=rwdlacx&se=2022-08-05T04:35:13Z&st=2021-08-04T20:35:13Z&spr=https&sig=o8AaL6gHGkuEOiNp7pv8t0yL7V%2F5rQWRYpdtx9jb39w%3D"
+# # "sasUrl": "https://webbimstorage.blob.core.windows.net/results/ifc4-test/payload_documents/c9f957572d73568cd5f3e40d0911d50f.ifc?sv=2020-08-04&ss=b&srt=sco&sp=rwdlacx&se=2022-08-05T04:35:13Z&st=2021-08-04T20:35:13Z&spr=https&sig=o8AaL6gHGkuEOiNp7pv8t0yL7V%2F5rQWRYpdtx9jb39w%3D"
+# # "sasUrl": "https://webbimstorage.blob.core.windows.net/results/test-model-wall-surface/payload_documents/10c512b3ca335fea54832a4407d06a01.ifc?sv=2020-08-04&ss=b&srt=sco&sp=rwdlacx&se=2022-08-05T04:35:13Z&st=2021-08-04T20:35:13Z&spr=https&sig=o8AaL6gHGkuEOiNp7pv8t0yL7V%2F5rQWRYpdtx9jb39w%3D"
+
+# ### Space polygons
+# # NB! icdd_path must have a SAS-token appended to it (by the orchestrator)
+# POST {{host}}/transform/spacePolygons
+# Content-Type: application/json
+
+# {
+#     "icdd_name": "6f6873d3885fd0bd11bee86ebce0eb71",
+#     "sas_url": "https://webbimstorage.blob.core.windows.net/results?sv=2020-08-04&ss=b&srt=sco&sp=rwdlacx&se=2022-08-05T04:35:13Z&st=2021-08-04T20:35:13Z&spr=https&sig=o8AaL6gHGkuEOiNp7pv8t0yL7V%2F5rQWRYpdtx9jb39w%3D",
+#     "namespace": "https://web-bim/resources/1234/"
+# }
+
+# ### Tesselate
+# POST {{host}}/transform/tesselate
+# Content-Type: application/json
+
+# {
+#     "sasUrl": "https://webbimstorage.blob.core.windows.net/results/6f6873d3885fd0bd11bee86ebce0eb71/payload_documents/.ifc?sv=2020-08-04&ss=b&srt=sco&sp=rwdlacx&se=2022-08-05T04:35:13Z&st=2021-08-04T20:35:13Z&spr=https&sig=o8AaL6gHGkuEOiNp7pv8t0yL7V%2F5rQWRYpdtx9jb39w%3D"
+# }
+
+# # "sasUrl": "https://webbimstorage.blob.core.windows.net/results/{{icddName}}/payload_documents/.ifc?sv=2020-08-04&ss=b&srt=sco&sp=rwdlacx&se=2022-08-05T04:35:13Z&st=2021-08-04T20:35:13Z&spr=https&sig=o8AaL6gHGkuEOiNp7pv8t0yL7V%2F5rQWRYpdtx9jb39w%3D"
+# # "sasUrl": "https://webbimstorage.blob.core.windows.net/results/6f6873d3885fd0bd11bee86ebce0eb71/payload_documents/.ifc?sv=2020-08-04&ss=b&srt=sco&sp=rwdlacx&se=2022-08-05T04:35:13Z&st=2021-08-04T20:35:13Z&spr=https&sig=o8AaL6gHGkuEOiNp7pv8t0yL7V%2F5rQWRYpdtx9jb39w%3D"
+# # "sasUrl": "https://webbimstorage.blob.core.windows.net/results/1024003-lbs-test/payload_documents/7073e25cf30ea18de983f218a7749293.ifc?sv=2020-08-04&ss=b&srt=sco&sp=rwdlacx&se=2022-08-05T04:35:13Z&st=2021-08-04T20:35:13Z&spr=https&sig=o8AaL6gHGkuEOiNp7pv8t0yL7V%2F5rQWRYpdtx9jb39w%3D"
+
+
+# ### Bot
+# POST {{host}}/transform/bot
+# Content-Type: application/json
+
+# {
+#     "sasUrl": "https://webbimstorage.blob.core.windows.net/results/{{icddName}}/payload_documents/{{ifcHash}}.ifc?sv=2020-08-04&ss=b&srt=sco&sp=rwdlacx&se=2022-08-05T04:35:13Z&st=2021-08-04T20:35:13Z&spr=https&sig=o8AaL6gHGkuEOiNp7pv8t0yL7V%2F5rQWRYpdtx9jb39w%3D",
+#     "split": "True"
+# }
+
+# ### Fso
+# POST {{host}}/transform/fso
+# Content-Type: application/json
+
+# {
+#     "sasUrl": "https://webbimstorage.blob.core.windows.net/results/{{icddName}}/payload_documents/.ifc?sv=2020-08-04&ss=b&srt=sco&sp=rwdlacx&se=2022-08-05T04:35:13Z&st=2021-08-04T20:35:13Z&spr=https&sig=o8AaL6gHGkuEOiNp7pv8t0yL7V%2F5rQWRYpdtx9jb39w%3D",
+#     "split": "True"
+# }
+
+# ### Materials
+# POST {{host}}/transform/materials
+# Content-Type: application/json
+
+# {
+#     "sasUrl": "https://webbimstorage.blob.core.windows.net/results/{{icddName}}/payload_documents/.ifc?sv=2020-08-04&ss=b&srt=sco&sp=rwdlacx&se=2022-08-05T04:35:13Z&st=2021-08-04T20:35:13Z&spr=https&sig=o8AaL6gHGkuEOiNp7pv8t0yL7V%2F5rQWRYpdtx9jb39w%3D"
+# }
+
+# ### Products
+# POST {{host}}/transform/products
+# Content-Type: application/json
+
+# {
+#     "sasUrl": "https://webbimstorage.blob.core.windows.net/results/{{icddName}}/payload_documents/.ifc?sv=2020-08-04&ss=b&srt=sco&sp=rwdlacx&se=2022-08-05T04:35:13Z&st=2021-08-04T20:35:13Z&spr=https&sig=o8AaL6gHGkuEOiNp7pv8t0yL7V%2F5rQWRYpdtx9jb39w%3D"
+# }
+
+# ### Properties
+# POST {{host}}/transform/properties
+# Content-Type: application/json
+
+# {
+#     "sasUrl": "https://webbimstorage.blob.core.windows.net/results/{{icddName}}/payload_documents/.ifc?sv=2020-08-04&ss=b&srt=sco&sp=rwdlacx&se=2022-08-05T04:35:13Z&st=2021-08-04T20:35:13Z&spr=https&sig=o8AaL6gHGkuEOiNp7pv8t0yL7V%2F5rQWRYpdtx9jb39w%3D"
+# }
+
+# # {
+# #     "id": "6f6873d3885fd0bd11bee86ebce0eb71",
+# #     "icdd_path": "https://webbimstorage.blob.core.windows.net/results/{{icddName}}?sv=2020-08-04&ss=b&srt=sco&sp=rwdlacx&se=2022-08-05T04:35:13Z&st=2021-08-04T20:35:13Z&spr=https&sig=o8AaL6gHGkuEOiNp7pv8t0yL7V%2F5rQWRYpdtx9jb39w%3D",
+# #     "namespace": "https://web-bim/resources/1234/"
+# # }
+
+# ### Classification
+# POST {{host}}/transform/classification
+# Content-Type: application/json
+
+# {
+#     "sasUrl": "https://webbimstorage.blob.core.windows.net/results/{{icddName}}/payload_documents/.ifc?sv=2020-08-04&ss=b&srt=sco&sp=rwdlacx&se=2022-08-05T04:35:13Z&st=2021-08-04T20:35:13Z&spr=https&sig=o8AaL6gHGkuEOiNp7pv8t0yL7V%2F5rQWRYpdtx9jb39w%3D"
+# }
