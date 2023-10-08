@@ -13,9 +13,8 @@ elif sys.platform == 'win64':
     import ifcopenshell
 elif sys.platform == 'linux':
     print(sys.platform)
-    import ifcopenshell_linux as ifcopenshell
-else:
     import ifcopenshell
+    #import ifcopenshell_linux as ifcopenshell
 
 from ifctester import ids, reporter
 
