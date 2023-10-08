@@ -2,6 +2,6 @@ fastapi
 uvicorn
 ifcopenshell
 ifcopenshell; sys_platform == 'win32'
-ifcopenshell_linux; sys_platform == 'linux'
+./env/Lib/site-packages/ifcopenshell_linux
 ifctester
 typing
