@@ -9,6 +9,10 @@ ifcAPI for using the ifcopenshell library and related packages
 
 If the error Permission denied comes up, try to deactivate the venv or restart VS Code. Sometimes it doesn't recognise the user permissions on the project folder.
 
+# Deployment
+- Deployment through Render.com (running on a linux server)
+- ifcopenshell x64 for linux required! --> ImportError: IfcOpenShell not built for 'linux/64bit/python3.10'
+
 # Getting Started
 TODO: Guide users through getting your code up and running on their own system. In this section you can talk about:
 1.	Installation process
@@ -17,10 +21,7 @@ TODO: Guide users through getting your code up and running on their own system. 
 4.	API references
 
 # Build and Test
-* Build with `docker-compose build` (NB! Make sure you are logged in to the registry `az acr login -n niraswebbimdockercontainerregistry` and that you have set the `AZURE_ARTIFACT_ACCESS_TOKEN` env var for your system)
-* Run with `docker-compose up`
-* Do mapping between the file you wish to use and the `file.ifc` in the root dir of the container (docker-compose.yml under volumes)
-* Execute by running `GET http://localhost:3000/transform`
+* 
 
 # Contribute
 TODO: Explain how other users and developers can contribute to make your code better. 

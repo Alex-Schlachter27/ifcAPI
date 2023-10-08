@@ -1,6 +1,22 @@
 from fastapi import FastAPI, File, UploadFile, HTTPException
 from typing import List
-import ifcopenshell
+import sys
+
+print(sys.platform)
+
+# import ifcopenshell_linux as ifcopenshell
+if sys.platform == 'win32':
+    print(sys.platform)
+    import ifcopenshell
+elif sys.platform == 'win64':
+    print(sys.platform)
+    import ifcopenshell
+elif sys.platform == 'linux':
+    print(sys.platform)
+    import ifcopenshell_linux as ifcopenshell
+else:
+    import ifcopenshell
+
 from ifctester import ids, reporter
 
 app = FastAPI()
