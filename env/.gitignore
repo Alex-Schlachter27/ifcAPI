@@ -1,0 +1,8 @@
+# /Lib/site-packages
+/Scripts
+/Include
+pyvenv.cfg
+# Do not ignore these files
+# !/Lib/site-packages/ifcopenshell_linux
+
+# Too big for github!
