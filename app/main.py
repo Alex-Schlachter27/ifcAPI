@@ -1,6 +1,8 @@
-from fastapi import FastAPI, File, UploadFile, HTTPException
+from fastapi import FastAPI, File, Form, Path, Query, UploadFile, HTTPException
+from fastapi.responses import FileResponse
 from typing import List
 import sys
+import copy
 
 print(sys.platform)
 
@@ -8,6 +10,7 @@ print(sys.platform)
 if sys.platform == 'win32':
     print(sys.platform)
     import ifcopenshell
+    import ifcopenshell.api
 elif sys.platform == 'win64':
     print(sys.platform)
     import ifcopenshell
@@ -46,21 +49,18 @@ async def get_ifc_products(file: UploadFile = File(...)):
 
 
 @app.post("/ids/validate/")
-async def validate_ifc_with_ids(files: List[UploadFile] = File(...)):
-    # results = []
-    for file in files:
-        if file.filename.endswith('.ifc'):
-            ifcFile = file
-        elif file.filename.endswith('.ids'):
-            idsFile = file
-        else:
-            raise HTTPException(status_code=400, detail="Invalid file format. Please upload an IFC file")
-    
-    print(idsFile.filename, ifcFile.filename)
+async def validate_ifc_with_ids(
+        ifc: UploadFile = File(...),
+        ids: UploadFile = File(...)
+    ):
+    if not ifc.filename.endswith('.ifc'):
+        raise HTTPException(status_code=400, detail="Invalid file format. Please upload an IFC file")
+    if not ids.filename.endswith('.ids'):
+        raise HTTPException(status_code=400, detail="Invalid file format. Please upload an IDS file")
     
     # open IFC file
-    my_ifc = await openIfcFile(ifcFile)
-    my_ids = await openIdsFile(idsFile)
+    my_ifc = await openIfcFile(ifc)
+    my_ids = await openIdsFile(ids)
     # print(my_ids)
 
     # Perform validation
@@ -70,6 +70,138 @@ async def validate_ifc_with_ids(files: List[UploadFile] = File(...)):
     json = reporter.Json(my_ids).report()
 
     return json
+
+
+
+@app.post("/prop/{global_id}/get-properties/")
+async def get_ifc_products(global_id, file: UploadFile = File(...)):
+
+    if not file.filename.endswith('.ifc'):
+        raise HTTPException(status_code=400, detail="Invalid file format. Please upload an IFC file")
+    
+    # open IFC file
+    model = await openIfcFile(file)
+    element = model.by_guid(global_id)
+
+    # Get psets and properties from all psets
+    psets = []
+    # for definition in product.IsDefinedBy:
+    #     if definition.is_a('IfcRelDefinesByProperties'):
+    #         property_set = definition.RelatingPropertyDefinition
+    #         psets.append(property_set)
+    # for pset in psets:
+    #     pset.HasProperties # Not working --> pset is IFC-line (but working in Jupyter!)
+    #     print(pset)
+    psets = ifcopenshell.util.element.get_psets(element)
+
+    return psets
+
+
+@app.post("/prop/{global_id}/add-property/")
+async def get_ifc_products(
+        global_id = Path(...), 
+        property_set: str = Form(...),
+        property_name: str = Form(...),
+        property_value: str = Form(...),        
+        file: UploadFile = File(...),
+        download: bool = Query(False),
+    ):
+
+    if not file.filename.endswith('.ifc'):
+        raise HTTPException(status_code=400, detail="Invalid file format. Please upload an IFC file")
+    
+    # open IFC file
+    model = await openIfcFile(file)
+
+    owner_history = model.by_type("IfcOwnerHistory")[0]
+    element = model.by_guid(global_id)
+
+    # Get pset
+    pset = ifcopenshell.util.element.get_pset(element, property_set)
+
+    # Add property
+    props = {property_name: property_value}
+    props_copied = copy.deepcopy(props)
+    ifcopenshell.api.run("pset.edit_pset", model, pset=model.by_id(pset["id"]), properties=props)
+    # ifcopenshell.api.run("pset.edit_pset", ifc, pset=ifc.by_id(psets["Pset_Name"]["id"]), properties={"foo": "changed"})
+
+    # Update temp model
+    model.write(r"{}".format(file.filename))
+
+    # Download?
+    if download == True:
+        return FileResponse(file.filename)
+
+    # Return text
+    # If the property is already in the model, ifcopenshell empties the props objects (={})
+    # Therefore a copy is created: props_copied
+    message = f"Added the following properties to the pset {property_set}"
+    out = {"Result": {
+        "Message": message,
+        "properties": props_copied
+    }}
+    return out
+
+@app.post("/prop/{global_id}/add-properties/")
+async def get_ifc_products(
+        global_id = Path(...), 
+        property_set: str = Form(...),
+        property_name: str = Form(...),
+        property_value: str = Form(...),        
+        file: UploadFile = File(...),
+        download: bool = False,
+    ):
+
+    if not file.filename.endswith('.ifc'):
+        raise HTTPException(status_code=400, detail="Invalid file format. Please upload an IFC file")
+    
+    # open IFC file
+    model = await openIfcFile(file)
+
+    owner_history = model.by_type("IfcOwnerHistory")[0]
+    element = model.by_guid(global_id)
+
+    # Get pset
+    pset = ifcopenshell.util.element.get_pset(element, property_set)
+    # print(pset)
+
+    # Add property
+    props = {property_name: property_value}
+    ifcopenshell.api.run("pset.edit_pset", model, pset=model.by_id(pset["id"]), properties=props)
+    # ifcopenshell.api.run("pset.edit_pset", ifc, pset=ifc.by_id(psets["Pset_Name"]["id"]), properties={"foo": "changed"})
+
+    # Update temp model
+    model.write(r"{}".format(file.filename))
+
+    # Return text
+    message = f"Added the following properties to the pset {property_set}"
+    out = {"Result": {
+        "Message": message,
+        "properties": props
+    }}
+    return out
+
+@app.post("/prop/{global_id}/update-property/")
+async def get_ifc_products(
+        global_id, 
+        file: UploadFile = File(...),
+        property_id: str = Form(...),
+        value: str = Form(...),
+    ):
+
+    if not file.filename.endswith('.ifc'):
+        raise HTTPException(status_code=400, detail="Invalid file format. Please upload an IFC file")
+    
+    # open IFC file
+    model = await openIfcFile(file)
+
+    owner_history = model.by_type("IfcOwnerHistory")[0]
+    element = model.by_guid(global_id)
+
+    # Get psets and properties from all psets
+    psets = ifcopenshell.util.element.get_psets(element)
+
+    return psets
 
 ### UTIL ###
 
