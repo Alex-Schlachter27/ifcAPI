@@ -2,48 +2,40 @@ from fastapi import FastAPI, File, Form, Path, Query, UploadFile, HTTPException
 from fastapi.responses import FileResponse
 from typing import List
 import sys
+import os
 import copy
 
-print(sys.platform)
+from .helpers import file_tools
+from .methods import ifc_tools, ids_tools
 
-# import ifcopenshell_linux as ifcopenshell
-if sys.platform == 'win32':
-    print(sys.platform)
-    import ifcopenshell
-    import ifcopenshell.api
-elif sys.platform == 'win64':
-    print(sys.platform)
-    import ifcopenshell
-elif sys.platform == 'linux':
-    print(sys.platform)
-    import ifcopenshell
-    #import ifcopenshell_linux as ifcopenshell
-
-from ifctester import ids, reporter
 
 app = FastAPI()
+
+print("test")
 
 
 @app.get("/")
 async def root():
-    version = ifcopenshell.version    
+    version = ifc_tools.get_ifcos_version()    
     return {"message": f"This is the ifcAPI (running on ifcopenshell {version}). Choose between te following endpoints"}
 
 @app.post("/main/get-ifc-products/")
 async def get_ifc_products(file: UploadFile = File(...)):
-    # results = []
     if not file.filename.endswith('.ifc'):
         raise HTTPException(status_code=400, detail="Invalid file format. Please upload an IFC file")
     
     # print(file)
     # print(file.filename)
     # print(file.size)
+
+    # save model locally
+    temp_file_path = file_tools.save_upload_file_tmp(file)
     
     # open IFC file
-    ifc_file = await openIfcFile(file)
+    ifc_file = await ifc_tools.openIfcFile(temp_file_path)
 
     # Perform analysis
-    product_types = ifcProductTypes(ifc_file)
+    product_types = ifc_tools.ifcProductTypes(ifc_file)
     
     return product_types
 
@@ -58,47 +50,41 @@ async def validate_ifc_with_ids(
     if not ids.filename.endswith('.ids'):
         raise HTTPException(status_code=400, detail="Invalid file format. Please upload an IDS file")
     
-    # open IFC file
-    my_ifc = await openIfcFile(ifc)
-    my_ids = await openIdsFile(ids)
+    # save files locally
+    temp_ifc_path = file_tools.save_upload_file_tmp(ifc)
+    temp_ids_path = file_tools.save_upload_file_tmp(ids)
+    
+    # open files
+    my_ifc = await ifc_tools.openIfcFile(temp_ifc_path)
+    my_ids = await ids_tools.openIdsFile(temp_ids_path)
     # print(my_ids)
 
-    # Perform validation
-    my_ids.validate(my_ifc)
+    json_report = ids_tools.validate_to_json(my_ifc, my_ids)
 
-    # Save report as json
-    json = reporter.Json(my_ids).report()
-
-    return json
+    return json_report
 
 
 
 @app.post("/prop/{global_id}/get-properties/")
-async def get_ifc_products(global_id, file: UploadFile = File(...)):
+async def get_properties_of_element(global_id, file: UploadFile = File(...)):
 
     if not file.filename.endswith('.ifc'):
         raise HTTPException(status_code=400, detail="Invalid file format. Please upload an IFC file")
     
+    # save model locally
+    temp_file_path = file_tools.save_upload_file_tmp(file)
+
     # open IFC file
-    model = await openIfcFile(file)
-    element = model.by_guid(global_id)
+    model = await ifc_tools.openIfcFile(temp_file_path)
 
     # Get psets and properties from all psets
-    psets = []
-    # for definition in product.IsDefinedBy:
-    #     if definition.is_a('IfcRelDefinesByProperties'):
-    #         property_set = definition.RelatingPropertyDefinition
-    #         psets.append(property_set)
-    # for pset in psets:
-    #     pset.HasProperties # Not working --> pset is IFC-line (but working in Jupyter!)
-    #     print(pset)
-    psets = ifcopenshell.util.element.get_psets(element)
+    psets = ifc_tools.getPsetsFromId(model, global_id)
 
     return psets
 
 
 @app.post("/prop/{global_id}/add-property/")
-async def get_ifc_products(
+async def add_property_of_element(
         global_id = Path(...), 
         property_set: str = Form(...),
         property_name: str = Form(...),
@@ -110,20 +96,23 @@ async def get_ifc_products(
     if not file.filename.endswith('.ifc'):
         raise HTTPException(status_code=400, detail="Invalid file format. Please upload an IFC file")
     
+    # save model locally
+    temp_file_path = file_tools.save_upload_file_tmp(file)
+
     # open IFC file
-    model = await openIfcFile(file)
+    model = await ifc_tools.openIfcFile(temp_file_path)
 
     owner_history = model.by_type("IfcOwnerHistory")[0]
-    element = model.by_guid(global_id)
 
     # Get pset
-    pset = ifcopenshell.util.element.get_pset(element, property_set)
+    pset = ifc_tools.getPsetFromId(model, global_id, property_set)
 
     # Add property
     props = {property_name: property_value}
     props_copied = copy.deepcopy(props)
-    ifcopenshell.api.run("pset.edit_pset", model, pset=model.by_id(pset["id"]), properties=props)
-    # ifcopenshell.api.run("pset.edit_pset", ifc, pset=ifc.by_id(psets["Pset_Name"]["id"]), properties={"foo": "changed"})
+    
+    # Update Pset
+    ifc_tools.editPset(model, pset, props)
 
     # Update temp model
     model.write(r"{}".format(file.filename))
@@ -142,6 +131,7 @@ async def get_ifc_products(
     }}
     return out
 
+
 @app.post("/prop/{global_id}/add-properties/")
 async def get_ifc_products(
         global_id = Path(...), 
@@ -155,88 +145,84 @@ async def get_ifc_products(
     if not file.filename.endswith('.ifc'):
         raise HTTPException(status_code=400, detail="Invalid file format. Please upload an IFC file")
     
+    # save model locally
+    temp_file_path = file_tools.save_upload_file_tmp(file)
+
     # open IFC file
-    model = await openIfcFile(file)
+    model = await ifc_tools.openIfcFile(temp_file_path)
 
     owner_history = model.by_type("IfcOwnerHistory")[0]
-    element = model.by_guid(global_id)
 
     # Get pset
-    pset = ifcopenshell.util.element.get_pset(element, property_set)
-    # print(pset)
+    pset = ifc_tools.getPsetFromId(model, global_id, property_set)
 
     # Add property
     props = {property_name: property_value}
-    ifcopenshell.api.run("pset.edit_pset", model, pset=model.by_id(pset["id"]), properties=props)
-    # ifcopenshell.api.run("pset.edit_pset", ifc, pset=ifc.by_id(psets["Pset_Name"]["id"]), properties={"foo": "changed"})
+    props_copied = copy.deepcopy(props)
+    
+    # Update Pset
+    ifc_tools.editPset(model, pset, props)
 
     # Update temp model
     model.write(r"{}".format(file.filename))
+
+    # Download?
+    if download == True:
+        return FileResponse(file.filename)
 
     # Return text
     message = f"Added the following properties to the pset {property_set}"
     out = {"Result": {
         "Message": message,
-        "properties": props
+        "properties": props_copied
     }}
     return out
 
 @app.post("/prop/{global_id}/update-property/")
-async def get_ifc_products(
-        global_id, 
+async def update_property_of_element(
+        global_id = Path(...), 
+        property_set: str = Form(...),
+        property_name: str = Form(...),
+        property_value: str = Form(...),        
         file: UploadFile = File(...),
-        property_id: str = Form(...),
-        value: str = Form(...),
+        download: bool = Query(False),
     ):
 
     if not file.filename.endswith('.ifc'):
         raise HTTPException(status_code=400, detail="Invalid file format. Please upload an IFC file")
     
+    # save model locally
+    temp_file_path = file_tools.save_upload_file_tmp(file)
+
     # open IFC file
-    model = await openIfcFile(file)
+    model = await ifc_tools.openIfcFile(temp_file_path)
 
     owner_history = model.by_type("IfcOwnerHistory")[0]
-    element = model.by_guid(global_id)
 
-    # Get psets and properties from all psets
-    psets = ifcopenshell.util.element.get_psets(element)
+    # Get pset
+    pset = ifc_tools.getPsetFromId(model, global_id, property_set)
 
-    return psets
-
-### UTIL ###
-
-async def openIfcFile(file):
-    # Read file
-    file_content = await file.read()
-
-    # Save file locally with to temp folder
-    # Save the file
-    # temp_file_path = f"temp/{file.filename}"
-    # with open(temp_file_path, "wb") as buffer:
-    #         # bytes = await file.read()
-    #         # print(bytes)
+    # Add property
+    props = {property_name: property_value}
+    props_copied = copy.deepcopy(props)
     
-    with open(file.filename, "wb") as buffer:
-        buffer.write(file_content)
+    # Update Pset
+    ifc_tools.editPset(model, pset, props)
 
-    # Open ifc file
-    ifc_file = ifcopenshell.open(file.filename)
+    # Update temp model
+    model.write(r"{}".format(file.filename))
 
-    return ifc_file
+    # Download?
+    if download == True:
+        return FileResponse(file.filename)
 
-async def openIdsFile(file):
-    # Read file
-    file_content = await file.read()
-    # print(file_content)
+    # Return text
+    # If the property is already in the model, ifcopenshell empties the props objects (={})
+    # Therefore a copy is created: props_copied
+    message = f"Added the following properties to the pset {property_set}"
+    out = {"Result": {
+        "Message": message,
+        "properties": props_copied
+    }}
+    return out
 
-    # Save file locally with "file.filename"
-    with open(file.filename, "wb") as buffer:
-        buffer.write(file_content)
-
-    # Open ifc file
-    ids_file = ids.open(file.filename)
-
-    return ids_file
-
-def ifcProductTypes(ifcFile):
-    return sorted({product.is_a() for product in ifcFile.by_type('IfcProduct')})
