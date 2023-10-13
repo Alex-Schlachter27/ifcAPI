@@ -14,11 +14,14 @@ If the error Permission denied comes up, try to deactivate the venv or restart V
 - ifcopenshell x64 for linux required! --> ImportError: IfcOpenShell not built for 'linux/64bit/python3.10'
 
 # Getting Started
-TODO: Guide users through getting your code up and running on their own system. In this section you can talk about:
-1.	Installation process
-2.	Software dependencies
-3.	Latest releases
-4.	API references
+Get started locally:
+1.	Clone repository
+2.  Create local environment for python packages: run `python -m venv env` --> creates `env` folder
+3.  Activate python environment: `source ./env/Scripts/activate`
+3.  Run `pip install -r requirements.txt` to isntall libraries inside your environment
+4.  Install some packages manually (download from github and pase into `env\Lib\site-packages`) --> fx ifcpatch or a specific ifcopenshell version
+5.	Run `uvicorn app.main:app --reload` to start the api on a local server
+6.  Send HTTP-requests to the endpoint `http://127.0.0.1:8000/` and use the methods from this repository (from the `\endpoints` folder)
 
 # Build and Test
 * 
@@ -30,6 +33,11 @@ If you want to learn more about creating good readme files then refer the follow
 - [ASP.NET Core](https://github.com/aspnet/Home)
 - [Visual Studio Code](https://github.com/Microsoft/vscode)
 - [Chakra Core](https://github.com/Microsoft/ChakraCore)
+
+
+
+
+
 
 ## Depoloy
 * Push to git
