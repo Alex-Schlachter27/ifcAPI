@@ -22,6 +22,22 @@ Get started locally:
 4.  Install some packages manually (download from github and pase into `env\Lib\site-packages`) --> fx ifcpatch or a specific ifcopenshell version
 5.	Run `uvicorn app.main:app --reload` to start the api on a local server
 6.  Send HTTP-requests to the endpoint `http://127.0.0.1:8000/` and use the methods from this repository (from the `\endpoints` folder)
+7.  Extend the endpoints with more ifcopenshell functions and structure them.
+
+
+# Routes
+
+|Route                                             |Description|Status|
+|--------------------------------------------------|-----------|------|
+|/main/get-ifc-products/                           |Get all ifc classes in the model|Done|
+|/prop/{global_id}/get-properties/                 |Get all properties from an element as JSON|Done|
+|/prop/{global_id}/add-property/                   |Add a property to a specific pset. Updated the property value, if the property already existst|Done|
+|/prop/{global_id}/add-properties/                 |Adds multiple properties to a specific element|Ongoing|
+|/prop/{global_id}/update-property/                |Updates a specific property value. Needed? Already done with add-property method|Ongoing|
+
+
+
+
 
 # Build and Test
 * 

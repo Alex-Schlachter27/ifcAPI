@@ -72,7 +72,7 @@ async def add_property_of_element(
     }}
     return out
 
-
+# TODO: How to add several properties? With JSON body?
 @app.post("/prop/{global_id}/add-properties/")
 async def get_ifc_products(
         global_id = Path(...), 
