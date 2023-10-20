@@ -6,7 +6,7 @@ import os
 import copy
 
 from .helpers import file_tools, ifc_tools, ids_tools
-from .endpoints import ids, prop
+from .endpoints import ids, prop, sim
 
 app = FastAPI()
 
@@ -37,5 +37,7 @@ async def get_ifc_products(file: UploadFile = File(...)):
     return product_types
 
 # ENDPOINTS
-app.mount("/", ids.app)
-app.mount("/", prop.app)
+# app.mount("/", sim.app)
+app.mount("/ids/", ids.app)
+app.mount("/sim/", sim.app)
+app.mount("/prop/", prop.app)

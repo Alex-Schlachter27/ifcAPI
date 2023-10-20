@@ -9,7 +9,11 @@ from ..helpers import file_tools, ifc_tools, ids_tools
 
 app = FastAPI()
 
-@app.post("/ids/validate/")
+@app.get("/")
+async def ids():
+    return {"message": f"IDS endpoint works"}
+
+@app.post("/validate/")
 async def validate_ifc_with_ids(
         ifc: UploadFile = File(...),
         ids: UploadFile = File(...)

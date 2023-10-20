@@ -6,7 +6,11 @@ from ..helpers import file_tools, ifc_tools
 
 app = FastAPI()
 
-@app.post("/prop/{global_id}/get-properties/")
+@app.get("/")
+async def prop():
+    return {"message": f"Property endpoint works"}
+
+@app.post("/{global_id}/get-properties/")
 async def get_properties_of_element(global_id, file: UploadFile = File(...)):
 
     if not file.filename.endswith('.ifc'):
@@ -24,7 +28,7 @@ async def get_properties_of_element(global_id, file: UploadFile = File(...)):
     return psets
 
 
-@app.post("/prop/{global_id}/add-property/")
+@app.post("/{global_id}/add-property/")
 async def add_property_of_element(
         global_id = Path(...), 
         property_set: str = Form(...),
@@ -56,11 +60,12 @@ async def add_property_of_element(
     ifc_tools.editPset(model, pset, props)
 
     # Update temp model
-    model.write(r"{}".format(file.filename))
+    # model.write(r"{}".format(file.filename))
+    model.write(r"{}".format(temp_file_path))
 
     # Download?
     if download == True:
-        return FileResponse(file.filename)
+        return FileResponse(temp_file_path)
 
     # Return text
     # If the property is already in the model, ifcopenshell empties the props objects (={})
@@ -73,7 +78,7 @@ async def add_property_of_element(
     return out
 
 # TODO: How to add several properties? With JSON body?
-@app.post("/prop/{global_id}/add-properties/")
+@app.post("/{global_id}/add-properties/")
 async def get_ifc_products(
         global_id = Path(...), 
         property_set: str = Form(...),
@@ -120,7 +125,7 @@ async def get_ifc_products(
     return out
 
 # Update is the same as Add (ifcopenshell.api will update a property if the property already exists)
-@app.post("/prop/{global_id}/update-property/")
+@app.post("/{global_id}/update-property/")
 async def update_property_of_element(
         global_id = Path(...), 
         property_set: str = Form(...),

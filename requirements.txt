@@ -5,3 +5,5 @@ ifcopenshell; sys_platform == 'linux'
 #./env/Lib/site-packages/ifcopenshell_linux
 ifctester
 typing
+pandas
+openpyxl
