@@ -24,6 +24,12 @@ Get started locally:
 6.  Send HTTP-requests to the endpoint `http://127.0.0.1:8000/` and use the methods from this repository (from the `\endpoints` folder)
 7.  Extend the endpoints with more ifcopenshell functions and structure them.
 
+If Permission denied --> Set local python path to the python.exe in the env
+`python.exe -m pip install gunicorn`
+`python.exe -m pip install -r requirements.txt`
+
+
+
 
 # Routes
 

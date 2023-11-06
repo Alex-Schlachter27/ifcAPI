@@ -7,3 +7,6 @@ ifctester
 typing
 pandas
 openpyxl
+xmlschema
+lark
+gunicorn

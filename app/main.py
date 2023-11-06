@@ -4,11 +4,24 @@ from typing import List
 import sys
 import os
 import copy
+from fastapi.middleware.cors import CORSMiddleware
 
 from .helpers import file_tools, ifc_tools, ids_tools
 from .endpoints import ids, prop, sim
 
 app = FastAPI()
+
+origins = [
+    "http://localhost:4200",
+]
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=origins,
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
 
 
 @app.get("/")
