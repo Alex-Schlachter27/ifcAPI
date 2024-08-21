@@ -2,7 +2,8 @@
 ifcAPI for using the ifcopenshell library and related packages
 
 # Useful commands
-- Activate python environment: `source ./env/Scripts/activate`
+<!-- - Activate python environment: `source ./env/Scripts/activate` -> Apparently only for Linux -->
+- Activate python environment: `./env/Scripts/activate`
 - Deavtivate environment: `deactivate`
 - Install requirements: `pip install -r requirements.txt` or `pip install -r dev-requirements.txt`
 - Run on local server with uvicorn: `uvicorn app.main:app --reload`
@@ -44,43 +45,7 @@ If Permission denied --> Set local python path to the python.exe in the env
 
 
 
-
-# Build and Test
-* 
-
-# Contribute
-TODO: Explain how other users and developers can contribute to make your code better. 
-
-If you want to learn more about creating good readme files then refer the following [guidelines](https://docs.microsoft.com/en-us/azure/devops/repos/git/create-a-readme?view=azure-devops). You can also seek inspiration from the below readme files:
-- [ASP.NET Core](https://github.com/aspnet/Home)
-- [Visual Studio Code](https://github.com/Microsoft/vscode)
-- [Chakra Core](https://github.com/Microsoft/ChakraCore)
-
-
-
-
-
-
-## Depoloy
-* Push to git
-* Connect to machine through LAN `ssh kobl1@192.168.28.61` (remember VPN!)
-* `cd opencascade-api`
-* `git pull`
-* `docker-compose up --build -d`
-
-# Routes
-
-TODO: Currently all routes take a GET request and execute on a static file. They should take a POST request with instructions on which ICDD to apply the transformation/data extraction to.
-
-|Route                     |Description|
-|--------------------------|-----------|
-|/transform                |List available transformation methods|
-|/transform/bbox           |Extracts element bounding boxes|
-|/transform/massTopPolygons|Extracts polygons of top surfaces of IfcBuildingElementProxies (Eg. for location model) in 2D WKT|
-|/transform/spacePolygons  |Extracts polygons of spaces in 2D WKT|
-|/transform/tesselate      |Extracts tesselated mesh geometries in STL|
-
-## Methods
+## Methods TO DO
 
 Method-routes executes a method on an ifc file to for example find the shortest distance between two objects.
 
